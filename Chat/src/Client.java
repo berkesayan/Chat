@@ -32,7 +32,7 @@ public class Client extends JFrame {
 	private static Client user;
 	private JTextField hostnametext;
 	private JTextField porttxt;
-	private PrintWriter writer;
+	private PrintWriter writer ;
 	private Socket socket;
 	private BufferedReader reader;
 	private JTextArea textArea;
@@ -180,7 +180,13 @@ public class Client extends JFrame {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} 
-				
+				try {
+					OutputStream output = socket.getOutputStream();
+					writer = new PrintWriter(output, true);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 
 				btnEnter.disable();
 				btnEnter.enable(false);
