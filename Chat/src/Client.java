@@ -39,6 +39,7 @@ public class Client extends JFrame {
 	private User user1;
 	private DataInputStream dIn;
 	private DataOutputStream dOut;
+	private Socket socket1 ;
 	public String getUserName() {
 		return usernametext.getText();
 	}
@@ -145,7 +146,20 @@ public class Client extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				textArea.append("[" + usernametext.getText() + "]: " + textField.getText() + "\n" );
-				writer.println(textField.getText().toString());
+				OutputStream outputStream;
+				ObjectOutputStream objectOutputStream;
+
+				try {
+					outputStream = socket1.getOutputStream();
+					// create an object output stream from the output stream so we can send an object through it
+					objectOutputStream = new ObjectOutputStream(outputStream);
+					objectOutputStream.writeObject(textField.getText());
+					objectOutputStream.writeObject(usernametext.getText());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				if(textField.getText() == "bye") {
 					try {
 						socket.close();
@@ -167,15 +181,15 @@ public class Client extends JFrame {
 					socket = new Socket(hostnametext.getText(), Integer.parseInt(porttxt.getText()));
 					System.out.println("Connected to the chat server");
 					Socket socket1 = serverSocket.accept();
-					
+
 					OutputStream outputStream;
 					ObjectOutputStream objectOutputStream;
-					
+
 					outputStream = socket1.getOutputStream();
 					// create an object output stream from the output stream so we can send an object through it
 					objectOutputStream = new ObjectOutputStream(outputStream);
 					objectOutputStream.writeObject(usernametext.getText());
-					
+
 				} catch (NumberFormatException | IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -202,8 +216,40 @@ public class Client extends JFrame {
 						}
 					}
 				}).start();
+				
+				new Thread().start();
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(1500);
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						while (true)
+						try {
+							socket1 = new Socket("localhost",27501);
+							InputStream inputStream = socket1.getInputStream();
+							// create a DataInputStream so we can read data from it.
+							ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+							//user = (User) objectInputStream.readObject();
+							String message = (String) objectInputStream.readObject();
+							String userName = (String) objectInputStream.readObject();
+							
+							textArea.append(userName + " " + message + "\n");
+						} catch (IOException | ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} 
+
+					}
+				}).start();
 			}
 		});
+
+		
 		btnEnter.setBounds(400, 155, 85, 21);
 		contentPane.add(btnEnter);
 

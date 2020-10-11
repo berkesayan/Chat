@@ -124,7 +124,6 @@ public class Chat extends JFrame {
 
 					@Override
 					public void run() {
-						// TODO Auto-generated method stub
 						Server = new ChatServer(port,chat);
 						Server.execute();
 					}
